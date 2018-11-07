@@ -1,6 +1,7 @@
 module React.EventListener
   ( HandlerOptions, WithOptions, withOptions
-  -- , class IsHandler, eventListener
+  , class IsHandler, SyntheticEventHandler' (..), eventHandler
+  , EventListenerProps, EventListenerPropsO, eventListener
   ) where
 
 import React (ReactClass, SyntheticEventHandler, unsafeCreateElement, ReactElement)
@@ -26,7 +27,7 @@ type HandlerOptions =
   , passive :: Boolean -- ^ Default: `false`
   )
 
-type WithOptions event =
+newtype WithOptions event = WithOptions
   { handler :: SyntheticEventHandler event
   , options :: { | HandlerOptions }
   }
@@ -40,14 +41,18 @@ withOptions :: forall options event
 withOptions = runFn2 withOptionsImpl
 
 
+-- | For type solving the IsHandler typeclass
+newtype SyntheticEventHandler' event = SyntheticEventHandler' (SyntheticEventHandler event)
 
--- class IsHandler handler
+-- | Sugar for lifting a type synonym `React.SyntheticEventHandler` to newtype `SyntheticEventHandler'`
+eventHandler :: forall event. SyntheticEventHandler event -> SyntheticEventHandler' event
+eventHandler = SyntheticEventHandler'
 
--- instance isHandlerSyntheticEventHandler :: IsHandler 
 
--- class IsHandler a
--- instance syntheticHandlerIsHandler :: IsHandler (SyntheticEventHandler SyntheticEvent)
--- instance withOptionsIsHandler :: IsHandler WithOptions
+class IsHandler (handler :: Type -> Type)
+instance isHandlerSyntheticEventHandler' :: IsHandler SyntheticEventHandler'
+instance isHandlerWithOptions :: IsHandler WithOptions
+
 
 
 type EventListenerProps o =
@@ -56,144 +61,144 @@ type EventListenerProps o =
 
 
 type EventListenerPropsO =
-  ( onAnimationStart :: SyntheticEventHandler SyntheticAnimationEvent
-  , onAnimationEnd :: SyntheticEventHandler SyntheticAnimationEvent
-  , onAnimationIteration :: SyntheticEventHandler SyntheticAnimationEvent
-  , onTransitionEnd :: SyntheticEventHandler SyntheticTransitionEvent
-  , onToggle :: SyntheticEventHandler SyntheticEvent
-  , onError :: SyntheticEventHandler SyntheticEvent
-  , onLoad :: SyntheticEventHandler SyntheticEvent
-  , onAbort :: SyntheticEventHandler SyntheticEvent
-  , onCanPlay :: SyntheticEventHandler SyntheticEvent
-  , onCanPlayThrough :: SyntheticEventHandler SyntheticEvent
-  , onDurationChange :: SyntheticEventHandler SyntheticEvent
-  , onEmptied :: SyntheticEventHandler SyntheticEvent
-  , onEncrypted :: SyntheticEventHandler SyntheticEvent
-  , onEnded :: SyntheticEventHandler SyntheticEvent
-  , onLoadedData :: SyntheticEventHandler SyntheticEvent
-  , onLoadedMetadata :: SyntheticEventHandler SyntheticEvent
-  , onLoadStart :: SyntheticEventHandler SyntheticEvent
-  , onPause :: SyntheticEventHandler SyntheticEvent
-  , onPlay :: SyntheticEventHandler SyntheticEvent
-  , onPlaying :: SyntheticEventHandler SyntheticEvent
-  , onProgress :: SyntheticEventHandler SyntheticEvent
-  , onRateChange :: SyntheticEventHandler SyntheticEvent
-  , onSeeked :: SyntheticEventHandler SyntheticEvent
-  , onSeeking :: SyntheticEventHandler SyntheticEvent
-  , onStalled :: SyntheticEventHandler SyntheticEvent
-  , onSuspend :: SyntheticEventHandler SyntheticEvent
-  , onTimeUpdate :: SyntheticEventHandler SyntheticEvent
-  , onVolumeChange :: SyntheticEventHandler SyntheticEvent
-  , onWaiting :: SyntheticEventHandler SyntheticEvent
-  , onCopy :: SyntheticEventHandler SyntheticClipboardEvent
-  , onCut :: SyntheticEventHandler SyntheticClipboardEvent
-  , onPaste :: SyntheticEventHandler SyntheticClipboardEvent
-  , onCompositionEnd :: SyntheticEventHandler SyntheticCompositionEvent
-  , onCompositionStart :: SyntheticEventHandler SyntheticCompositionEvent
-  , onCompositionUpdate :: SyntheticEventHandler SyntheticCompositionEvent
-  , onKeyDown :: SyntheticEventHandler SyntheticKeyboardEvent
-  , onKeyPress :: SyntheticEventHandler SyntheticKeyboardEvent
-  , onKeyUp :: SyntheticEventHandler SyntheticKeyboardEvent
-  , onFocus :: SyntheticEventHandler SyntheticFocusEvent
-  , onBlur :: SyntheticEventHandler SyntheticFocusEvent
-  , onChange :: SyntheticEventHandler SyntheticInputEvent
-  , onInput :: SyntheticEventHandler SyntheticInputEvent
-  , onInvalid :: SyntheticEventHandler SyntheticInputEvent
-  , onSubmit :: SyntheticEventHandler SyntheticInputEvent
-  , onClick :: SyntheticEventHandler SyntheticMouseEvent
-  , onContextMenu :: SyntheticEventHandler SyntheticMouseEvent
-  , onDoubleClick :: SyntheticEventHandler SyntheticMouseEvent
-  , onDrag :: SyntheticEventHandler SyntheticMouseEvent
-  , onDragEnd :: SyntheticEventHandler SyntheticMouseEvent
-  , onDragEnter :: SyntheticEventHandler SyntheticMouseEvent
-  , onDragExit :: SyntheticEventHandler SyntheticMouseEvent
-  , onDragLeave :: SyntheticEventHandler SyntheticMouseEvent
-  , onDragOver :: SyntheticEventHandler SyntheticMouseEvent
-  , onDragStart :: SyntheticEventHandler SyntheticMouseEvent
-  , onDrop :: SyntheticEventHandler SyntheticMouseEvent
-  , onMouseDown :: SyntheticEventHandler SyntheticMouseEvent
-  , onMouseEnter :: SyntheticEventHandler SyntheticMouseEvent
-  , onMouseLeave :: SyntheticEventHandler SyntheticMouseEvent
-  , onMouseMove :: SyntheticEventHandler SyntheticMouseEvent
-  , onMouseOut :: SyntheticEventHandler SyntheticMouseEvent
-  , onMouseOver :: SyntheticEventHandler SyntheticMouseEvent
-  , onMouseUp :: SyntheticEventHandler SyntheticMouseEvent
-  , onSelect :: SyntheticEventHandler SyntheticEvent
-  , onTouchCancel :: SyntheticEventHandler SyntheticTouchEvent
-  , onTouchEnd :: SyntheticEventHandler SyntheticTouchEvent
-  , onTouchMove :: SyntheticEventHandler SyntheticTouchEvent
-  , onTouchStart :: SyntheticEventHandler SyntheticTouchEvent
-  , onScroll :: SyntheticEventHandler SyntheticUIEvent
-  , onWheel :: SyntheticEventHandler SyntheticWheelEvent
-  , onAnimationStartCapture :: SyntheticEventHandler SyntheticAnimationEvent
-  , onAnimationEndCapture :: SyntheticEventHandler SyntheticAnimationEvent
-  , onAnimationIterationCapture :: SyntheticEventHandler SyntheticAnimationEvent
-  , onTransitionEndCapture :: SyntheticEventHandler SyntheticTransitionEvent
-  , onToggleCapture :: SyntheticEventHandler SyntheticEvent
-  , onErrorCapture :: SyntheticEventHandler SyntheticEvent
-  , onLoadCapture :: SyntheticEventHandler SyntheticEvent
-  , onAbortCapture :: SyntheticEventHandler SyntheticEvent
-  , onCanPlayCapture :: SyntheticEventHandler SyntheticEvent
-  , onCanPlayThroughCapture :: SyntheticEventHandler SyntheticEvent
-  , onDurationChangeCapture :: SyntheticEventHandler SyntheticEvent
-  , onEmptiedCapture :: SyntheticEventHandler SyntheticEvent
-  , onEncryptedCapture :: SyntheticEventHandler SyntheticEvent
-  , onEndedCapture :: SyntheticEventHandler SyntheticEvent
-  , onLoadedDataCapture :: SyntheticEventHandler SyntheticEvent
-  , onLoadedMetadataCapture :: SyntheticEventHandler SyntheticEvent
-  , onLoadStartCapture :: SyntheticEventHandler SyntheticEvent
-  , onPauseCapture :: SyntheticEventHandler SyntheticEvent
-  , onPlayCapture :: SyntheticEventHandler SyntheticEvent
-  , onPlayingCapture :: SyntheticEventHandler SyntheticEvent
-  , onProgressCapture :: SyntheticEventHandler SyntheticEvent
-  , onRateChangeCapture :: SyntheticEventHandler SyntheticEvent
-  , onSeekedCapture :: SyntheticEventHandler SyntheticEvent
-  , onSeekingCapture :: SyntheticEventHandler SyntheticEvent
-  , onStalledCapture :: SyntheticEventHandler SyntheticEvent
-  , onSuspendCapture :: SyntheticEventHandler SyntheticEvent
-  , onTimeUpdateCapture :: SyntheticEventHandler SyntheticEvent
-  , onVolumeChangeCapture :: SyntheticEventHandler SyntheticEvent
-  , onWaitingCapture :: SyntheticEventHandler SyntheticEvent
-  , onCopyCapture :: SyntheticEventHandler SyntheticClipboardEvent
-  , onCutCapture :: SyntheticEventHandler SyntheticClipboardEvent
-  , onPasteCapture :: SyntheticEventHandler SyntheticClipboardEvent
-  , onCompositionEndCapture :: SyntheticEventHandler SyntheticCompositionEvent
-  , onCompositionStartCapture :: SyntheticEventHandler SyntheticCompositionEvent
-  , onCompositionUpdateCapture :: SyntheticEventHandler SyntheticCompositionEvent
-  , onKeyDownCapture :: SyntheticEventHandler SyntheticKeyboardEvent
-  , onKeyPressCapture :: SyntheticEventHandler SyntheticKeyboardEvent
-  , onKeyUpCapture :: SyntheticEventHandler SyntheticKeyboardEvent
-  , onFocusCapture :: SyntheticEventHandler SyntheticFocusEvent
-  , onBlurCapture :: SyntheticEventHandler SyntheticFocusEvent
-  , onChangeCapture :: SyntheticEventHandler SyntheticInputEvent
-  , onInputCapture :: SyntheticEventHandler SyntheticInputEvent
-  , onInvalidCapture :: SyntheticEventHandler SyntheticInputEvent
-  , onSubmitCapture :: SyntheticEventHandler SyntheticInputEvent
-  , onClickCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onContextMenuCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onDoubleClickCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onDragCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onDragEndCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onDragEnterCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onDragExitCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onDragLeaveCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onDragOverCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onDragStartCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onDropCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onMouseDownCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onMouseEnterCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onMouseLeaveCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onMouseMoveCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onMouseOutCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onMouseOverCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onMouseUpCapture :: SyntheticEventHandler SyntheticMouseEvent
-  , onSelectCapture :: SyntheticEventHandler SyntheticEvent
-  , onTouchCancelCapture :: SyntheticEventHandler SyntheticTouchEvent
-  , onTouchEndCapture :: SyntheticEventHandler SyntheticTouchEvent
-  , onTouchMoveCapture :: SyntheticEventHandler SyntheticTouchEvent
-  , onTouchStartCapture :: SyntheticEventHandler SyntheticTouchEvent
-  , onScrollCapture :: SyntheticEventHandler SyntheticUIEvent
-  , onWheelCapture :: SyntheticEventHandler SyntheticWheelEvent
+  ( onAnimationStart :: forall handler. IsHandler handler => handler SyntheticAnimationEvent
+  , onAnimationEnd :: forall handler. IsHandler handler => handler SyntheticAnimationEvent
+  , onAnimationIteration :: forall handler. IsHandler handler => handler SyntheticAnimationEvent
+  , onTransitionEnd :: forall handler. IsHandler handler => handler SyntheticTransitionEvent
+  , onToggle :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onError :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onLoad :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onAbort :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onCanPlay :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onCanPlayThrough :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onDurationChange :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onEmptied :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onEncrypted :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onEnded :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onLoadedData :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onLoadedMetadata :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onLoadStart :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onPause :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onPlay :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onPlaying :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onProgress :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onRateChange :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onSeeked :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onSeeking :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onStalled :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onSuspend :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onTimeUpdate :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onVolumeChange :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onWaiting :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onCopy :: forall handler. IsHandler handler => handler SyntheticClipboardEvent
+  , onCut :: forall handler. IsHandler handler => handler SyntheticClipboardEvent
+  , onPaste :: forall handler. IsHandler handler => handler SyntheticClipboardEvent
+  , onCompositionEnd :: forall handler. IsHandler handler => handler SyntheticCompositionEvent
+  , onCompositionStart :: forall handler. IsHandler handler => handler SyntheticCompositionEvent
+  , onCompositionUpdate :: forall handler. IsHandler handler => handler SyntheticCompositionEvent
+  , onKeyDown :: forall handler. IsHandler handler => handler SyntheticKeyboardEvent
+  , onKeyPress :: forall handler. IsHandler handler => handler SyntheticKeyboardEvent
+  , onKeyUp :: forall handler. IsHandler handler => handler SyntheticKeyboardEvent
+  , onFocus :: forall handler. IsHandler handler => handler SyntheticFocusEvent
+  , onBlur :: forall handler. IsHandler handler => handler SyntheticFocusEvent
+  , onChange :: forall handler. IsHandler handler => handler SyntheticInputEvent
+  , onInput :: forall handler. IsHandler handler => handler SyntheticInputEvent
+  , onInvalid :: forall handler. IsHandler handler => handler SyntheticInputEvent
+  , onSubmit :: forall handler. IsHandler handler => handler SyntheticInputEvent
+  , onClick :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onContextMenu :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDoubleClick :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDrag :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDragEnd :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDragEnter :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDragExit :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDragLeave :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDragOver :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDragStart :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDrop :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onMouseDown :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onMouseEnter :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onMouseLeave :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onMouseMove :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onMouseOut :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onMouseOver :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onMouseUp :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onSelect :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onTouchCancel :: forall handler. IsHandler handler => handler SyntheticTouchEvent
+  , onTouchEnd :: forall handler. IsHandler handler => handler SyntheticTouchEvent
+  , onTouchMove :: forall handler. IsHandler handler => handler SyntheticTouchEvent
+  , onTouchStart :: forall handler. IsHandler handler => handler SyntheticTouchEvent
+  , onScroll :: forall handler. IsHandler handler => handler SyntheticUIEvent
+  , onWheel :: forall handler. IsHandler handler => handler SyntheticWheelEvent
+  , onAnimationStartCapture :: forall handler. IsHandler handler => handler SyntheticAnimationEvent
+  , onAnimationEndCapture :: forall handler. IsHandler handler => handler SyntheticAnimationEvent
+  , onAnimationIterationCapture :: forall handler. IsHandler handler => handler SyntheticAnimationEvent
+  , onTransitionEndCapture :: forall handler. IsHandler handler => handler SyntheticTransitionEvent
+  , onToggleCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onErrorCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onLoadCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onAbortCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onCanPlayCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onCanPlayThroughCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onDurationChangeCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onEmptiedCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onEncryptedCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onEndedCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onLoadedDataCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onLoadedMetadataCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onLoadStartCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onPauseCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onPlayCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onPlayingCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onProgressCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onRateChangeCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onSeekedCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onSeekingCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onStalledCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onSuspendCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onTimeUpdateCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onVolumeChangeCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onWaitingCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onCopyCapture :: forall handler. IsHandler handler => handler SyntheticClipboardEvent
+  , onCutCapture :: forall handler. IsHandler handler => handler SyntheticClipboardEvent
+  , onPasteCapture :: forall handler. IsHandler handler => handler SyntheticClipboardEvent
+  , onCompositionEndCapture :: forall handler. IsHandler handler => handler SyntheticCompositionEvent
+  , onCompositionStartCapture :: forall handler. IsHandler handler => handler SyntheticCompositionEvent
+  , onCompositionUpdateCapture :: forall handler. IsHandler handler => handler SyntheticCompositionEvent
+  , onKeyDownCapture :: forall handler. IsHandler handler => handler SyntheticKeyboardEvent
+  , onKeyPressCapture :: forall handler. IsHandler handler => handler SyntheticKeyboardEvent
+  , onKeyUpCapture :: forall handler. IsHandler handler => handler SyntheticKeyboardEvent
+  , onFocusCapture :: forall handler. IsHandler handler => handler SyntheticFocusEvent
+  , onBlurCapture :: forall handler. IsHandler handler => handler SyntheticFocusEvent
+  , onChangeCapture :: forall handler. IsHandler handler => handler SyntheticInputEvent
+  , onInputCapture :: forall handler. IsHandler handler => handler SyntheticInputEvent
+  , onInvalidCapture :: forall handler. IsHandler handler => handler SyntheticInputEvent
+  , onSubmitCapture :: forall handler. IsHandler handler => handler SyntheticInputEvent
+  , onClickCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onContextMenuCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDoubleClickCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDragCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDragEndCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDragEnterCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDragExitCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDragLeaveCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDragOverCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDragStartCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onDropCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onMouseDownCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onMouseEnterCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onMouseLeaveCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onMouseMoveCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onMouseOutCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onMouseOverCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onMouseUpCapture :: forall handler. IsHandler handler => handler SyntheticMouseEvent
+  , onSelectCapture :: forall handler. IsHandler handler => handler SyntheticEvent
+  , onTouchCancelCapture :: forall handler. IsHandler handler => handler SyntheticTouchEvent
+  , onTouchEndCapture :: forall handler. IsHandler handler => handler SyntheticTouchEvent
+  , onTouchMoveCapture :: forall handler. IsHandler handler => handler SyntheticTouchEvent
+  , onTouchStartCapture :: forall handler. IsHandler handler => handler SyntheticTouchEvent
+  , onScrollCapture :: forall handler. IsHandler handler => handler SyntheticUIEvent
+  , onWheelCapture :: forall handler. IsHandler handler => handler SyntheticWheelEvent
   )
 
 
