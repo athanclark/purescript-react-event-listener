@@ -198,5 +198,6 @@ type EventListenerPropsO =
 
 
 eventListener :: forall o
-               . EventListenerProps o -> Array ReactElement -> ReactElement
+               . SubRow o EventListenerPropsO
+              => EventListenerProps o -> Array ReactElement -> ReactElement
 eventListener = unsafeCreateElement eventListenerImpl
